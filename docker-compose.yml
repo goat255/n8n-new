@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: n8n_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: n8n
+      POSTGRES_PASSWORD: n8n_secure_password_2024
+      POSTGRES_DB: n8n
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n -d n8n"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - n8n_network
+
+  n8n:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Alternative: use pre-built image name if you build and push to registry
+    # image: your-registry/n8n-puppeteer:latest
+    container_name: n8n_custom
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      # Database configuration
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: n8n
+      DB_POSTGRESDB_PASSWORD: n8n_secure_password_2024
+      
+      # n8n configuration
+      GENERIC_TIMEZONE: Asia/Kolkata
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      
+      # Allow external modules
+      NODE_FUNCTION_ALLOW_EXTERNAL: axios,uuid,puppeteer,puppeteer-extra,puppeteer-extra-plugin-stealth,cheerio,node-fetch,got-scraping,got
+      NODE_FUNCTION_ALLOW_BUILTIN: fs,crypto,path,url,querystring
+      
+      # Custom nodes and Puppeteer configuration
+      N8N_CUSTOM_EXTENSIONS: /opt/custom-nodes:/usr/local/lib/node_modules
+      NODE_PATH: /usr/local/lib/node_modules:/opt/custom-nodes/node_modules
+      
+      # Puppeteer configuration
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
+      CHROME_BIN: /usr/bin/chromium-browser
+      CHROME_PATH: /usr/bin/chromium-browser
+      
+      # Additional Chrome flags for containerized environment
+      PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-accelerated-2d-canvas --no-first-run --no-zygote --disable-gpu"
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - n8n_network
+    # Security options for Chrome in container
+    security_opt:
+      - seccomp:unconfined
+    # Increase shared memory size for Chrome
+    shm_size: 2gb
+
+volumes:
+  postgres_data:
+  n8n_data:
+
+networks:
+  n8n_network:
+    driver: bridge
