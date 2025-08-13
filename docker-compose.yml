@@ -42,7 +42,7 @@ services:
       GENERIC_TIMEZONE: Asia/Kolkata
       N8N_HOST: localhost
       N8N_PORT: 5678
-      N8N_PROTOCOL: http
+      N8N_PROTOCOL: https
       
       # Allow external modules
       NODE_FUNCTION_ALLOW_EXTERNAL: axios,uuid,puppeteer,puppeteer-extra,puppeteer-extra-plugin-stealth,cheerio,node-fetch,got-scraping,got
