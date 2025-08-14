@@ -43,6 +43,10 @@ services:
       N8N_HOST: localhost
       N8N_PORT: 5678
       N8N_PROTOCOL: https
+
+      # Webhook URL configuration
+      WEBHOOK_URL: https://n8n.mylive.site/
+      VUE_APP_URL_BASE_API: https://n8n.mylive.site/
       
       # Allow external modules
       NODE_FUNCTION_ALLOW_EXTERNAL: axios,uuid,puppeteer,puppeteer-extra,puppeteer-extra-plugin-stealth,cheerio,node-fetch,got-scraping,got
