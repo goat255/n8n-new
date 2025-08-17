@@ -43,6 +43,7 @@ services:
       N8N_HOST: localhost
       N8N_PORT: 5678
       N8N_PROTOCOL: https
+      N8N_PROXY_HOPS: 1
 
       # Webhook URL configuration
       WEBHOOK_URL: https://n8n.mylive.site/
